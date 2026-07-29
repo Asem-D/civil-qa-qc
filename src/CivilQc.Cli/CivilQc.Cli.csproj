@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>CivilQc.Cli</RootNamespace>
+    <AssemblyName>civil-qc</AssemblyName>
+    <Version>0.1.0</Version>
+    <Description>Open-source QA/QC tool for Civil 3D drawings</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CivilQc.Engine\CivilQc.Engine.csproj" />
+  </ItemGroup>
+
+  <!-- Copy Plugin + its dependencies to CLI output so AccoreHost can find them for NETLOAD -->
+  <Target Name="CopyPluginDlls" AfterTargets="Build">
+    <ItemGroup>
+      <PluginDlls Include="..\CivilQc.Plugin\bin\$(Configuration)\net8.0-windows\CivilQc.Plugin.dll" />
+      <PluginDlls Include="..\CivilQc.Rules\bin\$(Configuration)\net8.0-windows\CivilQc.Rules.dll" />
+      <PluginDlls Include="..\CivilQc.Engine\bin\$(Configuration)\net8.0-windows\CivilQc.Engine.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(PluginDlls)"
+          DestinationFolder="$(OutputPath)"
+          SkipUnchangedFiles="true" />
+
+    <!-- Copy default rules YAML so RuleLoader.LoadDefault() finds it -->
+    <ItemGroup>
+      <RulesYaml Include="..\..\rules\default.yaml" />
+    </ItemGroup>
+    <Copy SourceFiles="@(RulesYaml)"
+          DestinationFolder="$(OutputPath)\rules"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

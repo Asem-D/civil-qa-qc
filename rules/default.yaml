@@ -1,0 +1,129 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Civil QC — Default Rule Configuration
+#
+# This file defines which QA/QC checks run and at what severity.
+# Set 'enabled: false' to skip a rule entirely.
+# Edit parameters to match your organisation's standards.
+#
+# Rule IDs map to implementation classes via the CheckType field.
+# The plugin discovers rule classes by scanning loaded assemblies.
+# ──────────────────────────────────────────────────────────────────────────────
+
+rules:
+
+  # ─── Performance Checks ────────────────────────────────────────────────────
+  - id: PERF-001
+    name: File size
+    check_type: FileSize
+    severity: Info
+    description: Reports drawing file size and warns when it exceeds thresholds.
+    parameters:
+      warning_mb: 100
+      error_mb: 500
+
+  # ─── Layer Checks ──────────────────────────────────────────────────────────
+
+  # LAYER-001: Naming convention
+  # Validates that layer names start with an allowed prefix followed by '-'.
+  # Edit the allowed_prefixes list to match your project's layer standard.
+  - id: LAYER-001
+    name: Layer naming convention
+    check_type: LayerNaming
+    severity: Warning
+    description: >-
+      Checks every user-created layer against a list of allowed name prefixes.
+      System layers "0" and "Defpoints" are always skipped.
+    parameters:
+      allowed_prefixes:
+        - CIVIL
+        - SURF
+        - ROAD
+        - PIPE
+        - ALGN
+        - CORR
+        - SITE
+        - UTIL
+        - DEM
+        - HYD
+        - ELEC
+        - STR
+        - ARCH
+        - TOPO
+        - BNDY
+        - ANNO
+        - DIM
+        - TEXT
+        - SYMB
+        - VIEWS
+        - DEF
+        - EXIST
+        - PROJ
+        - TEMP
+        - UTILITIES
+      require_prefix: true
+      separator: "-"
+
+  # LAYER-002: Empty layers
+  # Finds layers with zero drawn entities in ModelSpace or PaperSpace.
+  - id: LAYER-002
+    name: Empty layers
+    check_type: EmptyLayers
+    severity: Info
+    description: >-
+      Identifies layers that exist in the layer table but have no entities
+      drawn on them. Empty layers are usually leftover from deleted content
+      or template imports.
+    parameters:
+      exclude_defaults: true    # skip "0" and "Defpoints"
+
+  # LAYER-003: Frozen/off empty layers
+  # Layers that are both disabled (frozen or off) and empty are dead weight.
+  - id: LAYER-003
+    name: Unused layers
+    check_type: UnusedLayers
+    severity: Info
+    description: >-
+      Finds layers that are frozen or turned off AND have zero entities.
+      These layers serve no purpose and can be safely purged.
+    parameters:
+      exclude_defaults: true
+
+  # ─── Drawing Checks ────────────────────────────────────────────────────────
+
+  # DRAW-001: Drawing units
+  # Reports INSUNITS and optionally enforces a specific unit system.
+  - id: DRAW-001
+    name: Drawing units
+    check_type: DrawingUnits
+    severity: Warning
+    description: >-
+      Reads the INSUNITS system variable and compares against the expected
+      value. Mismatched units are a top source of scale errors.
+    parameters:
+      expected: "Meters"        # change to match your project standard
+
+  # DRAW-002: External references
+  # Reports xref status: resolved, unloaded, or missing.
+  - id: DRAW-002
+    name: Xref status
+    check_type: XrefStatus
+    severity: Warning
+    description: >-
+      Scans all external references and reports their resolution status.
+      Missing xrefs indicate broken file paths or moved reference files.
+    parameters:
+      fail_on_missing: true
+      warn_on_overlay: false
+
+  # DRAW-003: Proxy objects
+  # Counts proxy entities (placeholders for unsupported third-party objects).
+  - id: DRAW-003
+    name: Proxy objects
+    check_type: ProxyObjects
+    severity: Warning
+    description: >-
+      Counts proxy entities created by third-party applications. Proxy
+      objects indicate missing modules or version mismatches and cannot
+      be edited until the source application is available.
+    parameters:
+      max_count: 0              # 0 = report only, never fail

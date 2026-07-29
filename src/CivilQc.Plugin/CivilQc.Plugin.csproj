@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>CivilQc.Plugin</RootNamespace>
+    <LangVersion>12</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <!-- Only compile PluginMain.cs - other rule files are in CivilQc.Rules -->
+  <ItemGroup>
+    <Compile Include="PluginMain.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CivilQc.Engine\CivilQc.Engine.csproj" />
+    <ProjectReference Include="..\CivilQc.Rules\CivilQc.Rules.csproj" />
+  </ItemGroup>
+
+  <!-- AutoCAD/Civil 3D API references -->
+  <PropertyGroup>
+    <AutoCADInstallDir Condition="'$(AutoCADInstallDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2025</AutoCADInstallDir>
+    <Civil3DInstallDir Condition="'$(Civil3DInstallDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2025\C3D</Civil3DInstallDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="acdbmgd">
+      <HintPath>$(AutoCADInstallDir)\acdbmgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="accoremgd">
+      <HintPath>$(AutoCADInstallDir)\accoremgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- acmgd.dll provides ApplicationServices.Application (GetSystemVariable, DocumentManager, etc.) -->
+    <Reference Include="acmgd">
+      <HintPath>$(AutoCADInstallDir)\acmgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="AcDcPlugin">
+      <HintPath>$(AutoCADInstallDir)\AcDcPlugin.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="AeccDbMgd">
+      <HintPath>$(Civil3DInstallDir)\AeccDbMgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="AeccCoreMgd">
+      <HintPath>$(Civil3DInstallDir)\AeccCoreMgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>
