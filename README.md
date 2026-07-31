@@ -13,7 +13,7 @@ civil-qc CLI  ──spawns──>  accoreconsole.exe  ──loads──>  CivilQ
     │  2. Launch accoreconsole                4. Screenshot failures
     │  6. Generate HTML report                5. Write JSON results
     │                                                         │
-    └──────────── report.html/json <─────────────────────────┘
+    └──────────── report.html/json <──────────────────────────┘
 ```
 
 ## Projects
