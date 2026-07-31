@@ -137,6 +137,22 @@ Each rule entry supports these fields:
 - Civil 3D 2023-2025 installed (for running checks)
 - `accoreconsole.exe` accessible on PATH or via `ACCORECONSOLE_PATH` env var
 
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for planned features and version timeline.
+
+**Current**: v0.1.0 (7 rules, .NET 8)
+**Next**: v0.2.0 (multi-version .NET, 12+ rules)
+
+## Contributing
+
+Contributions welcome! See the roadmap for priority areas.
+
+1. Fork the repo
+2. Create a feature branch
+3. Add your rule implementing `ICheckRule`
+4. Submit a PR
+
 ## License
 
-MIT
+MIT License - see [LICENSE](LICENSE) for details.
