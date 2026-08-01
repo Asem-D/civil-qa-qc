@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CivilQc.Engine\CivilQc.Engine.csproj" />
+    <ProjectReference Include="..\CivilQc.Ai\CivilQc.Ai.csproj" />
   </ItemGroup>
 
   <!-- Copy Plugin + its dependencies to CLI output so AccoreHost can find them for NETLOAD -->

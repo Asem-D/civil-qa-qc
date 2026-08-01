@@ -1,0 +1,42 @@
+rules:
+  - id: LAYER-001
+    name: Layer Naming Convention
+    check_type: LayerNaming
+    severity: Warning
+    description: Validates that all layers follow standard naming conventions with approved prefixes
+    parameters:
+      allowed_prefixes:
+        - "A"
+        - "C"
+        - "E"
+        - "L"
+        - "M"
+        - "P"
+        - "S"
+        - "X"
+      separator: "-"
+      require_prefix: true
+
+  - id: LAYER-002
+    name: Unused Layers Detection
+    check_type: UnusedLayers
+    severity: Info
+    description: Identifies frozen or turned off layers that contain no entities
+    parameters:
+      exclude_defaults: true
+
+  - id: DRAW-001
+    name: Proxy Objects Check
+    check_type: ProxyObjects
+    severity: Warning
+    description: Reports presence of proxy objects from third-party applications
+    parameters:
+      max_count: 0
+
+  - id: DRAW-002
+    name: Drawing Units Validation
+    check_type: DrawingUnits
+    severity: Error
+    description: Ensures drawing units are set to the required standard
+    parameters:
+      expected: "Feet"

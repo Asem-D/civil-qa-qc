@@ -1,5 +1,8 @@
 using System.CommandLine;
+using System.Text.RegularExpressions;
 using CivilQc.Engine;
+using CivilQc.Ai;
+using YamlDotNet.RepresentationModel;
 
 var rootCommand = new RootCommand("Civil QC - Open-source QA/QC tool for Civil 3D drawings");
 
@@ -48,7 +51,8 @@ checkCommand.SetHandler(async (drawing, rules, output, format, screenshots, verb
     var reportDir = output?.FullName != null
         ? Path.GetDirectoryName(output.FullName) ?? "."
         : Path.GetDirectoryName(drawing.FullName) ?? ".";
-    var reportBase = output?.FullName ?? Path.Combine(reportDir, Path.GetFileNameWithoutExtension(drawing.FullName) + ".civil-qc");
+    var reportBaseRaw = output?.FullName ?? Path.Combine(reportDir, Path.GetFileNameWithoutExtension(drawing.FullName) + ".civil-qc");
+    var reportBase = Path.ChangeExtension(reportBaseRaw, null);
     var screenshotDir = screenshots?.FullName ?? Path.Combine(Path.GetDirectoryName(reportBase)!, "screenshots");
     Directory.CreateDirectory(screenshotDir);
 
@@ -130,5 +134,165 @@ checkCommand.SetHandler(async (drawing, rules, output, format, screenshots, verb
 }, checkFileArg, rulesOption, outputOption, formatOption, screenshotOption, verboseOption, recoverOption);
 
 rootCommand.AddCommand(checkCommand);
+
+// --- ai command group ---
+var aiApiKeyOption = new Option<string?>("--api-key", "AI API key (or set CIVIL_QC_AI_KEY env var)");
+var aiApiBaseOption = new Option<string?>("--api-base", "AI API base URL (default: https://openrouter.ai/api/v1)");
+var aiModelOption = new Option<string?>("--model", "AI model name (default: anthropic/claude-sonnet-4)");
+
+var aiCommand = new Command("ai", "AI-powered features (optional, requires BYOK)")
+{
+    aiApiKeyOption, aiApiBaseOption, aiModelOption
+};
+
+// --- ai generate-rules ---
+var grDescriptionOption = new Option<string?>("--description", "Natural-language description of the QA/QC rules to generate");
+var grFileOption = new Option<FileInfo?>("--file", "Path to a standards document to extract rules from");
+var grOutputOption = new Option<FileInfo?>("--output", () => new FileInfo("rules/ai-generated.yaml"), "Output path for generated YAML");
+
+var generateRulesCommand = new Command("generate-rules", "Generate QA/QC rule YAML from a description or standards document")
+{
+    grDescriptionOption, grFileOption, grOutputOption, aiApiKeyOption, aiApiBaseOption, aiModelOption
+};
+
+generateRulesCommand.SetHandler(async (description, file, output, apiKey, apiBase, model) =>
+{
+    if (string.IsNullOrWhiteSpace(description) && file is null)
+    {
+        Console.Error.WriteLine("Error: Provide --description or --file.");
+        return;
+    }
+
+    if (!string.IsNullOrWhiteSpace(description) && file is not null)
+    {
+        Console.Error.WriteLine("Error: Use either --description or --file, not both.");
+        return;
+    }
+
+    var config = AiConfig.Load(apiKey, apiBase, model);
+    if (!config.IsConfigured)
+    {
+        Console.Error.WriteLine("Error: No AI API key configured.");
+        Console.Error.WriteLine("Set --api-key flag, CIVIL_QC_AI_KEY env var, or ~/.civil-qa-qc/config.json");
+        return;
+    }
+
+    Console.WriteLine("Generating QA/QC rules with AI...");
+    Console.WriteLine($"  Model: {config.Model}");
+
+    var client = new OpenAiClient(config);
+    var service = new RuleGeneratorService(client);
+
+    try
+    {
+        var yaml = !string.IsNullOrWhiteSpace(description)
+            ? await service.GenerateFromDescriptionAsync(description)
+            : await service.GenerateFromFileAsync(file!.FullName);
+
+        // Strip markdown code fences that LLMs sometimes wrap around YAML
+        yaml = StripMarkdownFences(yaml);
+
+        // Validate YAML syntax before writing
+        try
+        {
+            var yamlStream = new YamlStream();
+            yamlStream.Load(new StringReader(yaml));
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"WARNING: Generated YAML failed validation: {ex.Message}");
+            Console.Error.WriteLine("Writing file anyway — please review the output.");
+        }
+
+        // Ensure output directory exists
+        var outputDir = Path.GetDirectoryName(output?.FullName ?? "rules/ai-generated.yaml");
+        if (!string.IsNullOrEmpty(outputDir))
+            Directory.CreateDirectory(outputDir);
+
+        var outputPath = output?.FullName ?? "rules/ai-generated.yaml";
+        await File.WriteAllTextAsync(outputPath, yaml);
+
+        Console.WriteLine();
+        Console.WriteLine($"Generated rules written to: {outputPath}");
+    }
+    catch (AiApiException ex)
+    {
+        Console.Error.WriteLine($"AI API error: {ex.Message}");
+    }
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine($"Error: {ex.Message}");
+    }
+}, grDescriptionOption, grFileOption, grOutputOption, aiApiKeyOption, aiApiBaseOption, aiModelOption);
+
+aiCommand.AddCommand(generateRulesCommand);
+
+// --- ai summarize ---
+var smInputOption = new Option<DirectoryInfo?>("--input", () => new DirectoryInfo("."), "Directory containing batch check result JSON files");
+var smOutputOption = new Option<string?>("--output", "Output path for markdown summary (default: stdout)");
+
+var summarizeCommand = new Command("summarize", "Summarize batch QA/QC results using AI")
+{
+    smInputOption, smOutputOption, aiApiKeyOption, aiApiBaseOption, aiModelOption
+};
+
+summarizeCommand.SetHandler(async (input, output, apiKey, apiBase, model) =>
+{
+    var config = AiConfig.Load(apiKey, apiBase, model);
+    if (!config.IsConfigured)
+    {
+        Console.Error.WriteLine("Error: No AI API key configured.");
+        Console.Error.WriteLine("Set --api-key flag, CIVIL_QC_AI_KEY env var, or ~/.civil-qa-qc/config.json");
+        return;
+    }
+
+    var inputDir = input?.FullName ?? ".";
+    Console.WriteLine($"Summarizing batch results from: {Path.GetFullPath(inputDir)}");
+    Console.WriteLine($"  Model: {config.Model}");
+
+    var client = new OpenAiClient(config);
+    var service = new BatchSummarizerService(client);
+
+    try
+    {
+        var summary = await service.SummarizeDirectoryAsync(inputDir);
+
+        if (!string.IsNullOrEmpty(output))
+        {
+            var outputDir = Path.GetDirectoryName(output);
+            if (!string.IsNullOrEmpty(outputDir))
+                Directory.CreateDirectory(outputDir);
+
+            await File.WriteAllTextAsync(output, summary);
+            Console.WriteLine();
+            Console.WriteLine($"Summary written to: {output}");
+        }
+        else
+        {
+            Console.WriteLine();
+            Console.WriteLine(summary);
+        }
+    }
+    catch (AiApiException ex)
+    {
+        Console.Error.WriteLine($"AI API error: {ex.Message}");
+    }
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine($"Error: {ex.Message}");
+    }
+}, smInputOption, smOutputOption, aiApiKeyOption, aiApiBaseOption, aiModelOption);
+
+aiCommand.AddCommand(summarizeCommand);
+
+rootCommand.AddCommand(aiCommand);
+
+static string StripMarkdownFences(string text)
+{
+    // Remove ```yaml ... ``` or ``` ... ``` fences that LLMs sometimes add
+    return Regex.Replace(text.Trim(), @"^```(?:ya?ml)?\s*\r?\n?", "", RegexOptions.Multiline)
+                .TrimEnd('`')
+                .Trim();
+}
 
 return await rootCommand.InvokeAsync(args);
