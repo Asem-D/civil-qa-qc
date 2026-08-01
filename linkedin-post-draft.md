@@ -1,42 +1,43 @@
-# LinkedIn Post Draft: civil-qa-qc Release
+# LinkedIn Post Draft: civil-qa-qc Release (v2)
 
 ---
 
-There's no open-source QA/QC tool for Civil 3D drawings. So I built one.
+Automated QA/QC for Civil 3D drawings exists inside the software. But running it headless, from a CLI, across hundreds of files, without touching the GUI? That part was missing.
+
+So I built [civil-qa-qc](https://github.com/Asem-D/civil-qa-qc).
 
 🔧 **The Problem**
 
-Every Civil 3D team I've worked with has the same pain: checking drawings against standards is manual, tedious, and error-prone. You open each file, eyeball the layers, check units, verify xrefs. Repeat 50 times.
+Every Civil 3D team I've worked with handles standards checking the same way: open each file, check layers, verify units, inspect xrefs, repeat 50 times. Autodesk's built-in Batch Standards Checker and the Standardized Data Tool help, but they still need the Civil 3D GUI and don't cover everything teams actually need to validate.
 
-Commercial solutions exist (ARKANCE, Autodesk's upcoming Model Checker), but they're either closed-source, expensive, or still in beta.
+📊 **What civil-qa-qc Does**
 
-📊 **What Civil QC Does**
+A headless CLI tool that:
 
-I built [civil-qa-qc](https://github.com/Asem-D/civil-qa-qc) as a headless CLI tool that:
+- Spawns Civil 3D via `accoreconsole` (no GUI required)
+- Runs configurable YAML rules against .dwg files
+- Generates HTML/JSON reports with pass/warn/fail results
+- Checks: layer naming, empty layers, unused layers, drawing units, xref status, proxy objects, file size
 
-• Spawns Civil 3D via `accoreconsole` (no GUI required)
-• Runs configurable YAML rules against .dwg files
-• Generates HTML/JSON reports with pass/warn/fail results
-• Checks: layer naming, empty layers, unused layers, drawing units, xref status, proxy objects, file size
+Batch process an entire project folder in one command.
 
-Batch process an entire project folder in one command. No clicking through dialogs.
+🏗️ **Why I Built It**
 
-🏗️ **Why It Matters**
+I wanted something that fits into a CI/CD pipeline or runs overnight on a server, with rules I can customize per project. The tool is MIT-licensed and pure .NET 8 C#. The rules are extensible: implement `ICheckRule` in C# to add your own checks.
 
-**Standards compliance shouldn't require a license fee.** The tool is MIT-licensed, pure .NET 8 C#, and designed for CI/CD integration. Run it on every commit. Run it overnight on your server. Run it before submission.
-
-I'm using Civil 3D 2025's `accoreconsole` for headless execution, which means full Civil 3D engine capability without the GUI overhead.
+Note: civil-qa-qc requires a Civil 3D installation (it uses `accoreconsole` under the hood). It's not replacing Civil 3D, it's automating the checks you'd otherwise do manually.
 
 💡 **What's Next**
 
-v0.1.0 is live with 7 built-in rules. The architecture is extensible: add custom rules by implementing `ICheckRule` in C#. Roadmap includes:
-• More rules (annotation standards, coordinate system validation)
-• Web dashboard for report browsing
-• Plugin architecture for community-contributed checks
+v0.1.0 is live with 7 built-in rules. Roadmap includes:
+
+- More rules (annotation standards, coordinate system validation)
+- Web dashboard for report browsing
+- Community-contributed rule plugins
 
 ---
 
-I'm looking for beta testers. If you manage Civil 3D standards across teams, I'd love your feedback on what rules matter most to your workflow.
+I'm looking for beta testers. If you manage Civil 3D standards across teams, I'd love to hear which rules matter most to your workflow.
 
 What's the QA/QC check that takes you the most time today? 👇
 

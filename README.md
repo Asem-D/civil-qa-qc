@@ -1,6 +1,8 @@
 # civil-qa-qc
 
-Open-source QA/QC tool for Civil 3D drawings. Runs automated checks against your `.dwg` files and generates HTML/JSON reports with embedded screenshots.
+Open-source CLI tool for automated QA/QC of Civil 3D drawings. Runs configurable checks against your `.dwg` files and generates HTML/JSON reports.
+
+> **Requires Civil 3D** (2023-2025) installed on the machine. The tool uses `accoreconsole.exe` to run checks headlessly — it automates what you'd otherwise do manually in the Civil 3D GUI.
 
 ## Architecture
 
