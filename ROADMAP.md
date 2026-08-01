@@ -2,7 +2,7 @@
 
 ## Current Status: v0.1.0
 
-**Released**: January 2026
+**Released**: August 2026
 **License**: MIT
 **Platform**: .NET 8, Civil 3D 2025 (accoreconsole)
 
@@ -10,6 +10,9 @@
 - CLI tool spawning headless Civil 3D via accoreconsole
 - YAML-configurable rules
 - HTML/JSON report generation
+- AI-powered features (optional, BYOK):
+  - `ai generate-rules`: Generate rule YAML from natural language or standards documents
+  - `ai summarize`: Executive summary from batch QA/QC results
 - 7 built-in rules:
   - PERF-001: File size check
   - LAYER-001: Layer naming conventions
@@ -21,7 +24,7 @@
 
 ---
 
-## v0.2.0 (Target: February 2026)
+## v0.2.0 (Target: March 2027)
 
 **Theme**: Compatibility & Core Rules
 
@@ -45,7 +48,7 @@
 
 ---
 
-## v0.3.0 (Target: March 2026)
+## v0.3.0 (Target: June 2027)
 
 **Theme**: Reporting & Integration
 
@@ -64,7 +67,7 @@
 
 ---
 
-## v1.0.0 (Target: May 2026)
+## v1.0.0 (Target: September 2027)
 
 **Theme**: Production Ready
 
@@ -91,7 +94,7 @@
 ## Future Ideas (Post v1.0)
 
 ### Advanced Features
-- AI-powered rule suggestions based on drawing analysis
+- AI-powered drawing analysis (classify layer violations, detect anomalies)
 - Integration with BIM 360 / Autodesk Construction Cloud
 - Real-time collaboration on QA/QC reports
 - Custom report templates (company branding)
