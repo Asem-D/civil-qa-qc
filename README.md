@@ -27,6 +27,7 @@ civil-qc CLI  ──spawns──>  accoreconsole.exe  ──loads──>  CivilQ
 | `CivilQc.Models` | .NET 8 | Shared data models (CheckResult, RuleDefinition, ReportData) |
 | `CivilQc.Rules` | .NET 8 + .NET 4.8 | IRule interface + built-in rule implementations |
 | `CivilQc.Plugin` | .NET 8 + .NET 4.8 | Plugin DLL loaded by accoreconsole |
+| `CivilQc.Ai` | .NET 8 | AI-powered rule generation and batch summarization (optional, BYOK) |
 | `CivilQc.Tests` | .NET 8 | Unit tests (xUnit) |
 
 ## Multi-version Support
@@ -62,6 +63,19 @@ civil-qc check drawing.dwg --format both --verbose
 
 # Specify output location
 civil-qc check drawing.dwg --output report.html --screenshots ./shots
+```
+
+### AI Commands (Optional)
+
+```bash
+# Generate rules from a natural language description
+civil-qc ai generate-rules --description "All layers must start with discipline prefix C-, S-, E-"
+
+# Generate rules from a standards document
+civil-qc ai generate-rules --file company-standards.txt --output rules/company.yaml
+
+# Summarize batch results
+civil-qc ai summarize --input ./results/ --output summary.md
 ```
 
 ## Custom Rules
@@ -132,6 +146,28 @@ Each rule entry supports these fields:
 | `DRAW-002` | `fail_on_missing` | bool | `true` | Mark as failed when xrefs are missing |
 | `DRAW-002` | `warn_on_overlay` | bool | `false` | Flag overlay-type xrefs |
 | `DRAW-003` | `max_count` | int | `0` | Max proxy objects allowed; 0 = report only |
+
+## AI Configuration
+
+AI features are **entirely optional**. The tool works fully without an API key. Bring Your Own Key (BYOK) if you want AI-powered rule generation or batch summarization.
+
+Provide your API key in one of three ways (highest precedence first):
+
+1. **CLI flag**: `--api-key <key>`
+2. **Environment variable**: `CIVIL_QC_AI_KEY`
+3. **Config file**: `~/.civil-qa-qc/config.json`
+
+```json
+{
+  "ai": {
+    "api_key": "sk-...",
+    "api_base": "https://openrouter.ai/api/v1",
+    "model": "anthropic/claude-sonnet-4"
+  }
+}
+```
+
+You can also override the API base URL (`--api-base`) and model (`--model`) via flags, environment variables, or the config file. Works with OpenRouter, OpenAI, Ollama, or any OpenAI-compatible endpoint.
 
 ## Requirements
 
