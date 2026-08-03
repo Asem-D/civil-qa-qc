@@ -14,13 +14,18 @@ var formatOption = new Option<string>("--format", () => "html", "Report format: 
 var screenshotOption = new Option<DirectoryInfo?>("--screenshots", "Directory for screenshot output");
 var verboseOption = new Option<bool>("--verbose", "Show detailed output during checks");
 var recoverOption = new Option<bool>("--recover", "Force RECOVER mode for corrupt drawings");
+var aiFixOption = new Option<bool>("--ai-fix", "Get AI-powered fix suggestions for failures (requires API key)");
+var aiApiKeyOption = new Option<string?>("--api-key", "AI API key (or set CIVIL_QC_AI_KEY env var)");
+var aiApiBaseOption = new Option<string?>("--api-base", "AI API base URL (default: https://openrouter.ai/api/v1)");
+var aiModelOption = new Option<string?>("--model", "AI model name (default: anthropic/claude-sonnet-4)");
 
 var checkCommand = new Command("check", "Run QA/QC checks on a Civil 3D drawing")
 {
-    checkFileArg, rulesOption, outputOption, formatOption, screenshotOption, verboseOption, recoverOption
+    checkFileArg, rulesOption, outputOption, formatOption, screenshotOption, verboseOption, recoverOption, aiFixOption,
+    aiApiKeyOption, aiApiBaseOption, aiModelOption
 };
 
-checkCommand.SetHandler(async (drawing, rules, output, format, screenshots, verbose, recover) =>
+checkCommand.SetHandler(async (drawing, rules, output, format, screenshots, verbose, recover, aiFix) =>
 {
     if (!drawing.Exists)
     {
@@ -105,6 +110,40 @@ checkCommand.SetHandler(async (drawing, rules, output, format, screenshots, verb
         // Clean up temp plugin output file
         try { File.Delete(pluginOutputPath); } catch { /* best effort */ }
 
+        // AI fix suggestions (optional)
+        if (aiFix)
+        {
+            var aiConfig = AiConfig.Load(
+                null, // apiKey from handler closure
+                null,
+                null);
+            if (aiConfig.IsConfigured)
+            {
+                var failedResults = reportData.Results.Where(r => !r.Passed).ToList();
+                if (failedResults.Count > 0)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Generating AI fix suggestions...");
+                    var aiClient = new OpenAiClient(aiConfig);
+                    var fixService = new FixSuggestionService(aiClient);
+                    var suggestions = await fixService.GenerateFixSuggestionsAsync(failedResults);
+
+                    // Attach suggestions to results
+                    foreach (var result in reportData.Results)
+                    {
+                        if (suggestions.TryGetValue(result.RuleId, out var fix))
+                            result.SuggestedFix = fix;
+                    }
+
+                    Console.WriteLine($"  Generated {suggestions.Count} fix suggestion(s)");
+                }
+            }
+            else
+            {
+                Console.WriteLine("  AI fix suggestions skipped (no API key configured)");
+            }
+        }
+
         if (format is "html" or "both")
         {
             var htmlPath = reportBase + ".html";
@@ -131,15 +170,11 @@ checkCommand.SetHandler(async (drawing, rules, output, format, screenshots, verb
     {
         Console.Error.WriteLine($"Error: {ex.Message}");
     }
-}, checkFileArg, rulesOption, outputOption, formatOption, screenshotOption, verboseOption, recoverOption);
+}, checkFileArg, rulesOption, outputOption, formatOption, screenshotOption, verboseOption, recoverOption, aiFixOption);
 
 rootCommand.AddCommand(checkCommand);
 
 // --- ai command group ---
-var aiApiKeyOption = new Option<string?>("--api-key", "AI API key (or set CIVIL_QC_AI_KEY env var)");
-var aiApiBaseOption = new Option<string?>("--api-base", "AI API base URL (default: https://openrouter.ai/api/v1)");
-var aiModelOption = new Option<string?>("--model", "AI model name (default: anthropic/claude-sonnet-4)");
-
 var aiCommand = new Command("ai", "AI-powered features (optional, requires BYOK)")
 {
     aiApiKeyOption, aiApiBaseOption, aiModelOption

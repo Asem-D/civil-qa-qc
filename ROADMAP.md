@@ -1,6 +1,6 @@
 # Civil QC Roadmap
 
-## Current Status: v0.1.0
+## Current Status: v0.2.0
 
 **Released**: August 2026
 **License**: MIT
@@ -13,7 +13,7 @@
 - AI-powered features (optional, BYOK):
   - `ai generate-rules`: Generate rule YAML from natural language or standards documents
   - `ai summarize`: Executive summary from batch QA/QC results
-- 7 built-in rules:
+- 12 built-in rules:
   - PERF-001: File size check
   - LAYER-001: Layer naming conventions
   - LAYER-002: Empty layers
@@ -21,30 +21,32 @@
   - DRAW-001: Drawing units
   - DRAW-002: Xref status
   - DRAW-003: Proxy objects
-
----
-
-## v0.2.0 (Target: March 2027)
-
-**Theme**: Compatibility & Core Rules
-
-### Goals
-- [ ] .NET Framework 4.8 target for Civil 3D 2020-2024 compatibility
-- [ ] Multi-version build pipeline (main = .NET 8, release branches = .NET Framework)
-- [ ] Add 5 new rules:
   - ANNO-001: Annotation scale consistency
   - ANNO-002: Text style standards
   - BLOCK-001: Block naming conventions
   - BLOCK-002: Dynamic block validation
   - DWG-001: Drawing recovery status
+
+---
+
+## v0.3.0 (Target: September 2026)
+
+**Theme**: Compatibility & Reporting
+
+### Goals
+- [ ] .NET Framework 4.8 target for Civil 3D 2020-2024 compatibility
+- [ ] Multi-version build pipeline (main = .NET 8, release branches = .NET Framework)
+- [ ] AI fix suggestions when rules fail
 - [ ] Improved error messages for common failures
 - [ ] JSON schema for report output (API integration)
+- [ ] Web dashboard for browsing reports (Blazor or static HTML)
+- [ ] Export to CSV/Excel for management reporting
 
 ### Success Criteria
 - Builds on .NET Framework 4.8 without errors
 - Runs on Civil 3D 2020, 2021, 2022, 2023, 2024, 2025
-- 12+ rules passing
-- 5 beta testers providing feedback
+- AI suggests actionable fixes for common violations
+- 10 beta testers providing feedback
 
 ---
 

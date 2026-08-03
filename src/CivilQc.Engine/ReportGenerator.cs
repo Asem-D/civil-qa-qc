@@ -96,6 +96,14 @@ footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--color-
             html.AppendLine($"<td>{WebUtility.HtmlEncode(r.ObjectName ?? "-")}</td>");
             html.AppendLine("</tr>");
 
+            // Show AI fix suggestion if available
+            if (!string.IsNullOrEmpty(r.SuggestedFix))
+            {
+                html.AppendLine($"<tr><td colspan='5' style='background:var(--color-surface);padding:0.5rem 1rem;border-top:1px solid var(--color-border)'>");
+                html.AppendLine($"<strong style='color:var(--color-pass)'>\U0001F4A1 Suggested Fix:</strong> {WebUtility.HtmlEncode(r.SuggestedFix)}");
+                html.AppendLine("</td></tr>");
+            }
+
             if (!string.IsNullOrEmpty(r.ScreenshotPath))
             {
                 html.AppendLine($"<tr><td colspan='5' class='screenshot'><img src='{WebUtility.HtmlEncode(r.ScreenshotPath)}' alt='Screenshot for {WebUtility.HtmlEncode(r.RuleId)}' /></td></tr>");

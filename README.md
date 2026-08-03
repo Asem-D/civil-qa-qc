@@ -48,6 +48,11 @@ civil-qc CLI  ──spawns──>  accoreconsole.exe  ──loads──>  CivilQ
 | `DRAW-001` | `DrawingUnits` | `DrawingUnitsRule` | Warning | Reports INSUNITS; enforces expected unit (configurable) |
 | `DRAW-002` | `XrefStatus` | `XrefStatusRule` | Warning | Reports xref resolution status, flags missing references |
 | `DRAW-003` | `ProxyObjects` | `ProxyObjectsRule` | Warning | Counts proxy entities, flags unsupported third-party objects |
+| `ANNO-001` | `AnnotationScale` | `AnnotationScaleRule` | Warning | Detects annotative entities, flags those in ModelSpace |
+| `ANNO-002` | `TextStyle` | `TextStyleRule` | Warning | Validates text styles against naming standards |
+| `BLOCK-001` | `BlockNaming` | `BlockNamingRule` | Warning | Checks block names against prefix/suffix/naming rules |
+| `BLOCK-002` | `DynamicBlock` | `DynamicBlockRule` | Info | Reports dynamic blocks and their properties |
+| `DWG-001` | `DrawingRecovery` | `DrawingRecoveryRule` | Critical | Detects recovery mode and audit status |
 
 ## Usage
 
@@ -63,6 +68,9 @@ civil-qc check drawing.dwg --format both --verbose
 
 # Specify output location
 civil-qc check drawing.dwg --output report.html --screenshots ./shots
+
+# Include AI-powered fix suggestions in the report
+civil-qc check drawing.dwg --ai-fix
 ```
 
 ### AI Commands (Optional)
@@ -179,8 +187,8 @@ You can also override the API base URL (`--api-base`) and model (`--model`) via 
 
 See [ROADMAP.md](ROADMAP.md) for planned features and version timeline.
 
-**Current**: v0.1.0 (7 rules, .NET 8)
-**Next**: v0.2.0 (multi-version .NET, 12+ rules)
+**Current**: v0.2.0 (12 rules, .NET 8)
+**Next**: v0.3.0 (multi-version .NET, improved reports)
 
 ## Contributing
 
@@ -188,7 +196,7 @@ Contributions welcome! See the roadmap for priority areas.
 
 1. Fork the repo
 2. Create a feature branch
-3. Add your rule implementing `ICheckRule`
+3. Add your rule implementing `IRule`
 4. Submit a PR
 
 ## License

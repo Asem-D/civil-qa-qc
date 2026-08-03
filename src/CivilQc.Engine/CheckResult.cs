@@ -12,4 +12,5 @@ public class CheckResult
     public ObjectType ObjectType { get; set; } = ObjectType.Unknown;
     public string? LayerName { get; set; }
     public Dictionary<string, string> Details { get; set; } = new();
+    public string? SuggestedFix { get; set; }
 }

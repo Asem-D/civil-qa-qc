@@ -19,6 +19,17 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\CivilQc.Engine\CivilQc.Engine.csproj" />
+    <ProjectReference Include="..\..\src\CivilQc.Rules\CivilQc.Rules.csproj" />
   </ItemGroup>
+
+  <!-- Copy default rules YAML so RuleLoader.LoadDefault() finds it during tests -->
+  <Target Name="CopyDefaultRules" AfterTargets="Build">
+    <ItemGroup>
+      <RulesYaml Include="..\..\rules\default.yaml" />
+    </ItemGroup>
+    <Copy SourceFiles="@(RulesYaml)"
+          DestinationFolder="$(OutputPath)\rules"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

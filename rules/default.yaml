@@ -127,3 +127,85 @@ rules:
       be edited until the source application is available.
     parameters:
       max_count: 0              # 0 = report only, never fail
+
+  # ─── Annotation Checks ───────────────────────────────────────────────────
+
+  # ANNO-001: Annotation scale consistency
+  # Detects annotative entities and checks their distribution.
+  - id: ANNO-001
+    name: Annotation scale consistency
+    check_type: AnnotationScale
+    severity: Info
+    description: >-
+      Detects annotative entities via the ACAD_ANNO XData marker and reports
+      their count, type distribution, and location (ModelSpace vs PaperSpace).
+      Optionally flags annotative objects in ModelSpace, which is usually wrong.
+    parameters:
+      fail_if_annotative_in_modelspace: false
+
+  # ANNO-002: Text style standards
+  # Validates text styles against a configurable allowed list.
+  - id: ANNO-002
+    name: Text style standards
+    check_type: TextStyle
+    severity: Warning
+    description: >-
+      Checks that all text styles in the drawing are on the allowed list.
+      Non-standard styles indicate copy/paste from other projects or
+      uncontrolled template imports.
+    parameters:
+      allowed_styles:
+        - Standard
+        - Arial
+      check_fonts: false
+      allowed_fonts: []
+
+  # ─── Block Checks ────────────────────────────────────────────────────────
+
+  # BLOCK-001: Block naming conventions
+  # Checks block names against prefix/suffix rules.
+  - id: BLOCK-001
+    name: Block naming conventions
+    check_type: BlockNaming
+    severity: Warning
+    description: >-
+      Validates block names against allowed and forbidden prefix lists.
+      Catches anonymous blocks ("A$XXXX"), broken dynamic blocks ("*Unnn"),
+      and non-standard naming.
+    parameters:
+      allowed_prefixes: []
+      forbidden_prefixes:
+        - "A$"
+        - "*U"
+        - "*D"
+        - "*X"
+      require_prefix: false
+      max_name_length: 0
+
+  # BLOCK-002: Dynamic block validation
+  # Checks that dynamic blocks have intact definitions.
+  - id: BLOCK-002
+    name: Dynamic block validation
+    check_type: DynamicBlock
+    severity: Warning
+    description: >-
+      Validates dynamic blocks by checking that their definitions are intact.
+      Blocks with IsDynamicBlock=true but empty definitions have lost their
+      dynamic behaviour, usually from copy/paste across drawings.
+    parameters:
+      fail_on_broken: true
+
+  # ─── Drawing Health Checks ───────────────────────────────────────────────
+
+  # DWG-001: Drawing recovery status
+  # Detects whether the drawing has been recovered or repaired.
+  - id: DWG-001
+    name: Drawing recovery status
+    check_type: DrawingRecovery
+    severity: Info
+    description: >-
+      Checks for recovery indicators: AUDITCTL flag, proxy graphics,
+      and proxy entities. Recovered drawings may contain data loss or
+      incomplete geometry.
+    parameters:
+      fail_on_recovery: false
