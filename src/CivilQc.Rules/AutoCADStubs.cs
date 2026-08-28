@@ -5,6 +5,7 @@
 #if NO_AUTOCAD
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Autodesk.AutoCAD.ApplicationServices
 {
@@ -47,18 +48,20 @@ namespace Autodesk.AutoCAD.DatabaseServices
 
     internal class DBObject
     {
+        public Handle Handle { get; } = new Handle();
         public virtual ResultBuffer? GetXDataForApplication(string regappName) => null;
     }
 
     internal class Database
     {
-        public TransactionManager TransactionManager { get; } = new();
+        public TransactionManager TransactionManager { get; } = new TransactionManager();
         public ObjectId BlockTableId { get; }
+        public ObjectId LayerTableId { get; }
     }
 
     internal class SymbolTable : DBObject, IEnumerable<ObjectId>
     {
-        public ObjectId this[ObjectId id] => ObjectId.Null;
+        public ObjectId this[string name] => ObjectId.Null;
         public IEnumerator<ObjectId> GetEnumerator() => Enumerable.Empty<ObjectId>().GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
@@ -68,19 +71,19 @@ namespace Autodesk.AutoCAD.DatabaseServices
     internal class BlockTableRecord : DBObject, IEnumerable<ObjectId>
     {
         public const string ModelSpace = "*Model_Space";
-        public bool IsFromExternalReference { get; }
-        public bool IsLayout { get; }
-        public bool IsUnloaded { get; }
-        public string PathName { get; } = string.Empty;
-        public new string Name { get; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public bool IsFromExternalReference { get; set; }
+        public bool IsLayout { get; set; }
+        public bool IsUnloaded { get; set; }
+        public bool IsDynamicBlock { get; set; }
+        public string PathName { get; set; } = string.Empty;
         public IEnumerator<ObjectId> GetEnumerator() => Enumerable.Empty<ObjectId>().GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     internal class Entity : DBObject
     {
-        public string Layer { get; } = string.Empty;
-        public Handle Handle { get; }
+        public string Layer { get; set; } = string.Empty;
     }
 
     internal class Handle
@@ -90,12 +93,29 @@ namespace Autodesk.AutoCAD.DatabaseServices
 
     internal class ProxyEntity : Entity { }
 
+    internal class LayerTable : SymbolTable { }
+
+    internal class LayerTableRecord : DBObject
+    {
+        public string Name { get; set; } = string.Empty;
+        public bool IsFrozen { get; set; }
+        public bool IsOff { get; set; }
+        public bool IsLocked { get; set; }
+        public bool IsPlottable { get; set; }
+    }
+
     internal class TextStyleTable : SymbolTable { }
 
     internal class TextStyleTableRecord : DBObject
     {
-        public new string Name { get; } = string.Empty;
-        public string FileName { get; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string FileName { get; set; } = string.Empty;
+    }
+
+    internal class DynamicBlockReferenceProperty
+    {
+        public string PropertyName { get; set; } = string.Empty;
+        public object Value { get; set; } = new object();
     }
 }
 #endif
