@@ -24,6 +24,7 @@
     <AutoCADInstallDir Condition="'$(AutoCADInstallDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2025</AutoCADInstallDir>
     <Civil3DInstallDir Condition="'$(Civil3DInstallDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2025\C3D</Civil3DInstallDir>
     <HasAutoCAD Condition="Exists('$(AutoCADInstallDir)\acdbmgd.dll')">true</HasAutoCAD>
+    <DefineConstants Condition="'$(HasAutoCAD)' != 'true'">$(DefineConstants);NO_AUTOCAD</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(HasAutoCAD)' == 'true'">

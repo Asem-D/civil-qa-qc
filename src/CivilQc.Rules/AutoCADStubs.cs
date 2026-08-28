@@ -1,4 +1,4 @@
-// AutoCADStubs.cs — Minimal type stubs for compiling Rules without AutoCAD.
+// AutoCADStubs.cs — Minimal type stubs for compiling without AutoCAD.
 // Only compiled when NO_AUTOCAD is defined (CI builds without Civil 3D).
 // These stubs satisfy the compiler but throw at runtime — rules require
 // real Civil 3D to function.
@@ -7,38 +7,36 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Autodesk.AutoCAD.ApplicationServices
+namespace Autodesk.AutoCAD.Runtime
 {
-    internal static class Application
+    [System.AttributeUsage(System.AttributeTargets.Method)]
+    public class CommandMethodAttribute : System.Attribute
     {
-        public static object GetSystemVariable(string name) =>
-            throw new System.NotSupportedException("AutoCAD not available in this environment.");
+        public CommandMethodAttribute(string name) { }
     }
-
-    internal class Document { }
 }
 
 namespace Autodesk.AutoCAD.DatabaseServices
 {
-    internal enum OpenMode { ForRead, ForWrite }
+    public enum OpenMode { ForRead, ForWrite }
 
-    internal struct ObjectId
+    public struct ObjectId
     {
         public static readonly ObjectId Null = default;
     }
 
-    internal class ResultBuffer : System.IDisposable
+    public class ResultBuffer : System.IDisposable
     {
         public void Dispose() { }
     }
 
-    internal class TransactionManager
+    public class TransactionManager
     {
         public Transaction StartTransaction() =>
             throw new System.NotSupportedException("AutoCAD not available.");
     }
 
-    internal class Transaction : System.IDisposable
+    public class Transaction : System.IDisposable
     {
         public DBObject GetObject(ObjectId id, OpenMode mode) =>
             throw new System.NotSupportedException("AutoCAD not available.");
@@ -46,13 +44,18 @@ namespace Autodesk.AutoCAD.DatabaseServices
         public void Dispose() { }
     }
 
-    internal class DBObject
+    public class DBObject
     {
         public Handle Handle { get; } = new Handle();
         public virtual ResultBuffer? GetXDataForApplication(string regappName) => null;
     }
 
-    internal class Database
+    public class Handle
+    {
+        public override string ToString() => string.Empty;
+    }
+
+    public class Database
     {
         public TransactionManager TransactionManager { get; } = new TransactionManager();
         public ObjectId BlockTableId { get; }
@@ -60,16 +63,16 @@ namespace Autodesk.AutoCAD.DatabaseServices
         public ObjectId TextStyleTableId { get; }
     }
 
-    internal class SymbolTable : DBObject, IEnumerable<ObjectId>
+    public class SymbolTable : DBObject, IEnumerable<ObjectId>
     {
         public ObjectId this[string name] => ObjectId.Null;
         public IEnumerator<ObjectId> GetEnumerator() => Enumerable.Empty<ObjectId>().GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
-    internal class BlockTable : SymbolTable { }
+    public class BlockTable : SymbolTable { }
 
-    internal class BlockTableRecord : DBObject, IEnumerable<ObjectId>
+    public class BlockTableRecord : DBObject, IEnumerable<ObjectId>
     {
         public const string ModelSpace = "*Model_Space";
         public string Name { get; set; } = string.Empty;
@@ -82,21 +85,16 @@ namespace Autodesk.AutoCAD.DatabaseServices
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
-    internal class Entity : DBObject
+    public class Entity : DBObject
     {
         public string Layer { get; set; } = string.Empty;
     }
 
-    internal class Handle
-    {
-        public override string ToString() => string.Empty;
-    }
+    public class ProxyEntity : Entity { }
 
-    internal class ProxyEntity : Entity { }
+    public class LayerTable : SymbolTable { }
 
-    internal class LayerTable : SymbolTable { }
-
-    internal class LayerTableRecord : DBObject
+    public class LayerTableRecord : DBObject
     {
         public string Name { get; set; } = string.Empty;
         public bool IsFrozen { get; set; }
@@ -105,19 +103,39 @@ namespace Autodesk.AutoCAD.DatabaseServices
         public bool IsPlottable { get; set; }
     }
 
-    internal class TextStyleTable : SymbolTable { }
+    public class TextStyleTable : SymbolTable { }
 
-    internal class TextStyleTableRecord : DBObject
+    public class TextStyleTableRecord : DBObject
     {
         public string Name { get; set; } = string.Empty;
         public string FileName { get; set; } = string.Empty;
         public double TextSize { get; set; }
     }
 
-    internal class DynamicBlockReferenceProperty
+    public class DynamicBlockReferenceProperty
     {
         public string PropertyName { get; set; } = string.Empty;
         public object Value { get; set; } = new object();
+    }
+}
+
+namespace Autodesk.AutoCAD.ApplicationServices
+{
+    public static class Application
+    {
+        public static DocumentManager DocumentManager { get; } = new DocumentManager();
+        public static object GetSystemVariable(string name) =>
+            throw new System.NotSupportedException("AutoCAD not available in this environment.");
+    }
+
+    public class DocumentManager
+    {
+        public Document? MdiActiveDocument { get; }
+    }
+
+    public class Document
+    {
+        public DatabaseServices.Database Database { get; } = new DatabaseServices.Database();
     }
 }
 #endif
