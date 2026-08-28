@@ -245,7 +245,7 @@ generateRulesCommand.SetHandler(async (description, file, output, apiKey, apiBas
             Directory.CreateDirectory(outputDir);
 
         var outputPath = output?.FullName ?? "rules/ai-generated.yaml";
-        await File.WriteAllTextAsync(outputPath, yaml);
+        File.WriteAllText(outputPath, yaml);
 
         Console.WriteLine();
         Console.WriteLine($"Generated rules written to: {outputPath}");
@@ -298,7 +298,7 @@ summarizeCommand.SetHandler(async (input, output, apiKey, apiBase, model) =>
             if (!string.IsNullOrEmpty(outputDir))
                 Directory.CreateDirectory(outputDir);
 
-            await File.WriteAllTextAsync(output, summary);
+            File.WriteAllText(output, summary);
             Console.WriteLine();
             Console.WriteLine($"Summary written to: {output}");
         }

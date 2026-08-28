@@ -31,7 +31,7 @@ public class RuleGeneratorService
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"Standards file not found: {filePath}");
 
-        var content = await File.ReadAllTextAsync(filePath);
+        var content = File.ReadAllText(filePath);
 
         // Truncate very large files to fit in context
         if (content.Length > 30_000)

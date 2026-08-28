@@ -113,9 +113,9 @@ public class AccoreHost
         // ErrorStatus=53 typically indicates corrupt or unsupported objects.
         var combined = $"{stdout} {stderr}";
         return exitCode == 53
-            || combined.Contains("ErrorStatus=53", StringComparison.OrdinalIgnoreCase)
-            || combined.Contains("could not be opened", StringComparison.OrdinalIgnoreCase)
-            || combined.Contains("drawing is corrupt", StringComparison.OrdinalIgnoreCase);
+            || combined.IndexOf("ErrorStatus=53", StringComparison.OrdinalIgnoreCase) >= 0
+            || combined.IndexOf("could not be opened", StringComparison.OrdinalIgnoreCase) >= 0
+            || combined.IndexOf("drawing is corrupt", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     private static string FindAccoreconsole()

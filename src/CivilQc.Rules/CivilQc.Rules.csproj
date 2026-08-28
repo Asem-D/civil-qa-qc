@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -12,7 +12,7 @@
     <ProjectReference Include="..\CivilQc.Engine\CivilQc.Engine.csproj" />
   </ItemGroup>
 
-  <!-- AutoCAD API references — only base AutoCAD, not Civil 3D.
+  <!-- AutoCAD API references â€” only base AutoCAD, not Civil 3D.
        Current rules use DatabaseServices (layers, xrefs, entities) which
        live in acdbmgd.dll and accoremgd.dll. Civil 3D-specific rules
        (future) will need AeccDbMgd/AeccCoreMgd added here. -->

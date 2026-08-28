@@ -145,7 +145,8 @@ public class TextStyleRule : IRule
                        .ToList();
 
         if (raw is string str)
-            return str.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            return str.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                      .Select(s => s.Trim())
                       .ToList();
 
         return new List<string>();

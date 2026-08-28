@@ -50,11 +50,11 @@ public class BatchSummarizerService
         if (!File.Exists(resultsFile))
             throw new FileNotFoundException($"Results file not found: {resultsFile}");
 
-        var content = await File.ReadAllTextAsync(resultsFile);
+        var content = File.ReadAllText(resultsFile);
 
         // If it's a single report, wrap it as an array
         var trimmed = content.TrimStart();
-        if (!trimmed.StartsWith('['))
+        if (!trimmed.StartsWith("["))
             content = $"[{content}]";
 
         return await GenerateSummaryAsync(content);
@@ -77,11 +77,11 @@ public class BatchSummarizerService
         {
             try
             {
-                var content = await File.ReadAllTextAsync(file);
+                var content = File.ReadAllText(file);
                 var trimmed = content.TrimStart();
 
                 // Handle both single objects and arrays
-                if (trimmed.StartsWith('['))
+                if (trimmed.StartsWith("["))
                 {
                     // Strip outer brackets and add items
                     var inner = trimmed[1..^1].Trim();

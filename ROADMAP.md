@@ -39,8 +39,9 @@
 - [ ] AI fix suggestions when rules fail
 - [ ] Improved error messages for common failures
 - [ ] JSON schema for report output (API integration)
-- [ ] Web dashboard for browsing reports (Blazor or static HTML)
 - [ ] Export to CSV/Excel for management reporting
+- [ ] GitHub Releases with prebuilt binaries
+- [ ] CI/CD pipeline (GitHub Actions)
 
 ### Success Criteria
 - Builds on .NET Framework 4.8 without errors
@@ -50,7 +51,7 @@
 
 ---
 
-## v0.3.0 (Target: June 2027)
+## v0.4.0 (Target: June 2027)
 
 **Theme**: Reporting & Integration
 
@@ -61,6 +62,7 @@
 - [ ] Custom rule configuration UI (simple web form)
 - [ ] Batch mode improvements (parallel execution)
 - [ ] Export to CSV/Excel for management reporting
+- [ ] Community rule contributions (3+ external PRs)
 
 ### Success Criteria
 - Dashboard renders reports from JSON

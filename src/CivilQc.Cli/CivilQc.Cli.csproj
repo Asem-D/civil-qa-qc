@@ -1,11 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFrameworks>net8.0-windows;net48</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>CivilQc.Cli</RootNamespace>
+    <LangVersion>12</LangVersion>
     <AssemblyName>civil-qc</AssemblyName>
     <Version>0.1.0</Version>
     <Description>Open-source QA/QC tool for Civil 3D drawings</Description>
@@ -25,7 +26,7 @@
     <ItemGroup>
       <PluginDlls Include="..\CivilQc.Plugin\bin\$(Configuration)\net8.0-windows\CivilQc.Plugin.dll" />
       <PluginDlls Include="..\CivilQc.Rules\bin\$(Configuration)\net8.0-windows\CivilQc.Rules.dll" />
-      <PluginDlls Include="..\CivilQc.Engine\bin\$(Configuration)\net8.0-windows\CivilQc.Engine.dll" />
+      <PluginDlls Include="..\CivilQc.Engine\bin\$(Configuration)\net48\CivilQc.Engine.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(PluginDlls)"
           DestinationFolder="$(OutputPath)"
@@ -40,4 +41,8 @@
           SkipUnchangedFiles="true" />
   </Target>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
 </Project>
