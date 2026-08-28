@@ -21,6 +21,7 @@
   <PropertyGroup>
     <AutoCADInstallDir Condition="'$(AutoCADInstallDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2025</AutoCADInstallDir>
     <HasAutoCAD Condition="Exists('$(AutoCADInstallDir)\acdbmgd.dll')">true</HasAutoCAD>
+    <DefineConstants Condition="'$(HasAutoCAD)' != 'true'">$(DefineConstants);NO_AUTOCAD</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(HasAutoCAD)' == 'true'">
