@@ -28,7 +28,7 @@ public class BatchSummarizerService
         if (jsonFiles.Length == 0)
             throw new InvalidOperationException($"No JSON files found in {resultsDir}");
 
-        var combinedJson = await LoadAndCombineResults(jsonFiles);
+        var combinedJson = LoadAndCombineResults(jsonFiles);
 
         const int MaxContextChars = 80_000;
         if (combinedJson.Length > MaxContextChars)
@@ -67,7 +67,7 @@ public class BatchSummarizerService
         return await _client.ChatAsync(systemPrompt, userMessage);
     }
 
-    private static async Task<string> LoadAndCombineResults(string[] jsonFiles)
+    private static string LoadAndCombineResults(string[] jsonFiles)
     {
         var allResults = new StringBuilder();
         allResults.AppendLine("[");

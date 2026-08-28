@@ -16,11 +16,14 @@
        Current rules use DatabaseServices (layers, xrefs, entities) which
        live in acdbmgd.dll and accoremgd.dll. Civil 3D-specific rules
        (future) will need AeccDbMgd/AeccCoreMgd added here. -->
+  <!-- AutoCAD API references — only resolve when Civil 3D is installed.
+       CI runners won't have these, so we condition on the DLL existing. -->
   <PropertyGroup>
     <AutoCADInstallDir Condition="'$(AutoCADInstallDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2025</AutoCADInstallDir>
+    <HasAutoCAD Condition="Exists('$(AutoCADInstallDir)\acdbmgd.dll')">true</HasAutoCAD>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(HasAutoCAD)' == 'true'">
     <Reference Include="acdbmgd">
       <HintPath>$(AutoCADInstallDir)\acdbmgd.dll</HintPath>
       <Private>false</Private>
@@ -29,7 +32,6 @@
       <HintPath>$(AutoCADInstallDir)\accoremgd.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <!-- acmgd.dll provides ApplicationServices.Application (GetSystemVariable, DocumentManager, etc.) -->
     <Reference Include="acmgd">
       <HintPath>$(AutoCADInstallDir)\acmgd.dll</HintPath>
       <Private>false</Private>

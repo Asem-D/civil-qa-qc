@@ -19,13 +19,14 @@
     <ProjectReference Include="..\CivilQc.Rules\CivilQc.Rules.csproj" />
   </ItemGroup>
 
-  <!-- AutoCAD/Civil 3D API references -->
+  <!-- AutoCAD/Civil 3D API references — only resolve when installed -->
   <PropertyGroup>
     <AutoCADInstallDir Condition="'$(AutoCADInstallDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2025</AutoCADInstallDir>
     <Civil3DInstallDir Condition="'$(Civil3DInstallDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2025\C3D</Civil3DInstallDir>
+    <HasAutoCAD Condition="Exists('$(AutoCADInstallDir)\acdbmgd.dll')">true</HasAutoCAD>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(HasAutoCAD)' == 'true'">
     <Reference Include="acdbmgd">
       <HintPath>$(AutoCADInstallDir)\acdbmgd.dll</HintPath>
       <Private>false</Private>
@@ -34,7 +35,6 @@
       <HintPath>$(AutoCADInstallDir)\accoremgd.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <!-- acmgd.dll provides ApplicationServices.Application (GetSystemVariable, DocumentManager, etc.) -->
     <Reference Include="acmgd">
       <HintPath>$(AutoCADInstallDir)\acmgd.dll</HintPath>
       <Private>false</Private>

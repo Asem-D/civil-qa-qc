@@ -30,11 +30,11 @@ public class AiConfig
 
         // CLI flags override everything
         if (!string.IsNullOrWhiteSpace(cliApiKey))
-            config.ApiKey = cliApiKey;
+            config.ApiKey = cliApiKey!;
         if (!string.IsNullOrWhiteSpace(cliApiBase))
-            config.ApiBase = cliApiBase;
+            config.ApiBase = cliApiBase!;
         if (!string.IsNullOrWhiteSpace(cliModel))
-            config.Model = cliModel;
+            config.Model = cliModel!;
 
         return config;
     }
@@ -61,7 +61,7 @@ public class AiConfig
                 // api_key_env: read the env var named by this value
                 if (aiSection.TryGetProperty("api_key_env", out var envVarName))
                 {
-                    var envValue = Environment.GetEnvironmentVariable(envVarName.GetString());
+                    var envValue = Environment.GetEnvironmentVariable(envVarName.GetString() ?? string.Empty);
                     if (!string.IsNullOrEmpty(envValue))
                         config.ApiKey = envValue;
                 }

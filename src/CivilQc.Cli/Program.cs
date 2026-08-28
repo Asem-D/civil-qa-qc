@@ -221,7 +221,7 @@ generateRulesCommand.SetHandler(async (description, file, output, apiKey, apiBas
     try
     {
         var yaml = !string.IsNullOrWhiteSpace(description)
-            ? await service.GenerateFromDescriptionAsync(description)
+            ? await service.GenerateFromDescriptionAsync(description!)
             : await service.GenerateFromFileAsync(file!.FullName);
 
         // Strip markdown code fences that LLMs sometimes wrap around YAML
