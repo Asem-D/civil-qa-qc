@@ -36,6 +36,17 @@ civil-qc check drawing.dwg --rules custom-rules.yaml --format both --verbose
 civil-qc check drawing.dwg --ai-fix
 ```
 
+## Documentation
+
+| Document | Audience | Description |
+|----------|----------|-------------|
+| [Getting Started](docs/getting-started.md) | Users | Installation, first check, understanding reports |
+| [Configuration](docs/configuration.md) | Users | YAML structure, all rule parameters, project standards |
+| [Custom Rules](docs/custom-rules.md) | Developers | Step-by-step guide to writing your own IRule |
+| [Architecture](docs/architecture.md) | Contributors | How the CLI, Plugin, and Rules fit together |
+| [CI/CD Integration](docs/ci-integration.md) | DevOps | GitHub Actions, Azure DevOps, batch scripts |
+| [Troubleshooting](docs/troubleshooting.md) | Everyone | Common errors, fixes, FAQ |
+
 ## Architecture
 
 ```
@@ -82,7 +93,7 @@ rules:
       require_prefix: true
 ```
 
-See [Parameter Reference](#parameters-by-rule) for all available options.
+See [Configuration](docs/configuration.md) for all rule parameters, or [Custom Rules](docs/custom-rules.md) for a step-by-step guide to writing new rules from scratch.
 
 ## AI Commands (Optional)
 
@@ -109,6 +120,8 @@ Provide your API key via CLI flag (`--api-key`), environment variable (`CIVIL_QC
 | `release/2024` | .NET Framework 4.8 | Civil 3D 2020-2024 |
 
 ## Extending
+
+See [Custom Rules](docs/custom-rules.md) for a full step-by-step guide.
 
 Drop a new `IRule` implementation into `CivilQc.Rules`:
 
