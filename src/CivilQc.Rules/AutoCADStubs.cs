@@ -57,6 +57,7 @@ namespace Autodesk.AutoCAD.DatabaseServices
         public TransactionManager TransactionManager { get; } = new TransactionManager();
         public ObjectId BlockTableId { get; }
         public ObjectId LayerTableId { get; }
+        public ObjectId TextStyleTableId { get; }
     }
 
     internal class SymbolTable : DBObject, IEnumerable<ObjectId>
@@ -110,6 +111,7 @@ namespace Autodesk.AutoCAD.DatabaseServices
     {
         public string Name { get; set; } = string.Empty;
         public string FileName { get; set; } = string.Empty;
+        public double TextSize { get; set; }
     }
 
     internal class DynamicBlockReferenceProperty
