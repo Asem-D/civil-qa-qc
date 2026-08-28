@@ -56,8 +56,6 @@ screenshots/
 build_output.txt
 AUDIT.md
 
-## Demo assets (too large for git)
-demo-drawings/
-demo-gif/*.gif
-demo-gif/*.png
+## Demo assets
+demo-drawings/*.dwg
 demo-gif/*.py

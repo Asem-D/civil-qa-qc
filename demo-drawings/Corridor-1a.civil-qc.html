@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>Civil QC Report - Corridor-1a.dwg</title>
+<style>
+:root {
+  --color-bg: #1a1a2e;
+  --color-surface: #16213e;
+  --color-border: #0f3460;
+  --color-text: #e0e0e0;
+  --color-text-muted: #a0a0b0;
+  --color-critical: #ff4757;
+  --color-error: #ff6b35;
+  --color-warning: #ffa502;
+  --color-info: #1e90ff;
+  --color-pass: #2ed573;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--color-bg); color: var(--color-text); line-height: 1.5; }
+.container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+header { border-bottom: 2px solid var(--color-border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+h1 { font-size: 1.5rem; font-weight: 600; }
+.meta { color: var(--color-text-muted); font-size: 0.875rem; margin-top: 0.5rem; }
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.summary-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 1rem; text-align: center; }
+.summary-card .count { font-size: 2rem; font-weight: 700; }
+.summary-card .label { font-size: 0.75rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.summary-card.critical .count { color: var(--color-critical); }
+.summary-card.error .count { color: var(--color-error); }
+.summary-card.warning .count { color: var(--color-warning); }
+.summary-card.info .count { color: var(--color-info); }
+.summary-card.pass .count { color: var(--color-pass); }
+table { width: 100%; border-collapse: collapse; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden; }
+th { background: var(--color-border); padding: 0.75rem 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+td { padding: 0.75rem 1rem; border-top: 1px solid var(--color-border); font-size: 0.9rem; }
+.badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+.badge-critical { background: rgba(255,71,87,0.2); color: var(--color-critical); }
+.badge-error { background: rgba(255,107,53,0.2); color: var(--color-error); }
+.badge-warning { background: rgba(255,165,2,0.2); color: var(--color-warning); }
+.badge-info { background: rgba(30,144,255,0.2); color: var(--color-info); }
+.badge-pass { background: rgba(46,213,115,0.2); color: var(--color-pass); }
+.screenshot { margin-top: 0.5rem; }
+.screenshot img { max-width: 400px; border-radius: 4px; border: 1px solid var(--color-border); }
+footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--color-border); color: var(--color-text-muted); font-size: 0.8rem; }
+</style>
+</head>
+<body>
+<div class='container'>
+<header>
+<h1>📋 Civil QC Report</h1>
+<div class='meta'>Drawing: C:\Users\hp\.nanobot\workspace\civil-qa-qc\demo-drawings\Corridor-1a.dwg</div>
+<div class='meta'>Generated: 2026-07-31 19:25:57 | Tool version: 0.1.0</div>
+</header>
+<div class='summary'>
+<div class='summary-card pass'><div class='count'>3</div><div class='label'>Passed</div></div>
+<div class='summary-card critical'><div class='count'>0</div><div class='label'>Critical</div></div>
+<div class='summary-card error'><div class='count'>0</div><div class='label'>Error</div></div>
+<div class='summary-card warning'><div class='count'>2</div><div class='label'>Warning</div></div>
+<div class='summary-card info'><div class='count'>2</div><div class='label'>Info</div></div>
+</div>
+<table>
+<thead><tr><th>Status</th><th>Rule</th><th>Severity</th><th>Message</th><th>Object</th></tr></thead>
+<tbody>
+<tr>
+<td><span class='badge badge-warning'>WARNING</span></td>
+<td>Layer naming convention<br><small style='color:var(--color-text-muted)'>LAYER-001</small></td>
+<td><span class='badge badge-warning'>Warning</span></td>
+<td>144 layer(s) with non-standard names: C-ANNO-TABL, C-ANNO-TABL-PATT, C-ANNO-TABL-TEXT, C-ANNO-TABL-TITL, C-ANNO-TABL-TTBL, C-PROP-BRNG, C-PROP-TEXT, C-PROP-LINE, C-ROAD-ASSM, C-ROAD-ASSM-BLIN (and 134 more)</td>
+<td>-</td>
+</tr>
+<tr>
+<td><span class='badge badge-warning'>WARNING</span></td>
+<td>Drawing units<br><small style='color:var(--color-text-muted)'>DRAW-001</small></td>
+<td><span class='badge badge-warning'>Warning</span></td>
+<td>Drawing units are 6, expected Meters.</td>
+<td>-</td>
+</tr>
+<tr>
+<td><span class='badge badge-pass'>PASS</span></td>
+<td>Xref status<br><small style='color:var(--color-text-muted)'>DRAW-002</small></td>
+<td><span class='badge badge-warning'>Warning</span></td>
+<td>No external references attached.</td>
+<td>-</td>
+</tr>
+<tr>
+<td><span class='badge badge-pass'>PASS</span></td>
+<td>Proxy objects<br><small style='color:var(--color-text-muted)'>DRAW-003</small></td>
+<td><span class='badge badge-warning'>Warning</span></td>
+<td>No proxy objects found.</td>
+<td>-</td>
+</tr>
+<tr>
+<td><span class='badge badge-info'>INFO</span></td>
+<td>File size<br><small style='color:var(--color-text-muted)'>PERF-001</small></td>
+<td><span class='badge badge-info'>Info</span></td>
+<td>Rule execution failed: Unable to cast object of type &#39;System.Text.Json.JsonElement&#39; to type &#39;System.IConvertible&#39;.</td>
+<td>-</td>
+</tr>
+<tr>
+<td><span class='badge badge-info'>INFO</span></td>
+<td>Empty layers<br><small style='color:var(--color-text-muted)'>LAYER-002</small></td>
+<td><span class='badge badge-info'>Info</span></td>
+<td>127 empty layer(s) found: C-ANNO-TABL, C-ANNO-TABL-PATT, C-ANNO-TABL-TEXT, C-ANNO-TABL-TITL, C-ANNO-TABL-TTBL, C-PROP-BRNG, C-PROP-TEXT, C-ROAD-ASSM-BLIN, C-ROAD-ASSM-OFFS, C-ROAD-BRNG (and 117 more)</td>
+<td>-</td>
+</tr>
+<tr>
+<td><span class='badge badge-pass'>PASS</span></td>
+<td>Unused layers<br><small style='color:var(--color-text-muted)'>LAYER-003</small></td>
+<td><span class='badge badge-info'>Info</span></td>
+<td>No frozen/off empty layers found.</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<footer>
+<p>Generated by Civil QC | Open-source QA/QC for Civil 3D</p>
+</footer>
+</div></body></html>
