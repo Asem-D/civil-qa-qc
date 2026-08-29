@@ -14,9 +14,12 @@ Open-source CLI tool for automated QA/QC of Civil 3D drawings. Runs configurable
 
 ## Features
 
-- **12 built-in rules**: Layer naming, empty layers, drawing units, xrefs, proxy objects, annotation scale, text styles, block naming, and more
+- **15 built-in rules**: Layer naming, empty layers, unused layers, color, linetype, drawing units, xrefs, proxy objects, annotation scale, text styles, block naming, block insertion point, drawing recovery, and more
+- **Batch mode**: Check multiple drawings at once, with CSV and JSON export for CI/CD
+- **AUDIT pre-step**: `--repair` flag runs AutoCAD AUDIT before checks to fix recoverable errors
 - **YAML-configurable**: Define your own rules or customize built-in ones
 - **HTML & JSON reports**: Visual HTML reports with screenshots, machine-readable JSON for CI/CD
+- **CSV export**: Spreadsheet-friendly output for batch results
 - **AI-powered** (optional, BYOK): Generate rules from natural language, summarize batch results
 - **Multi-version**: .NET 8 for Civil 3D 2025+, .NET Framework 4.8 for Civil 3D 2020-2024
 
@@ -28,6 +31,12 @@ dotnet build
 
 # Run with default rules
 civil-qc check drawing.dwg
+
+# Batch mode with CSV export
+civil-qc batch ./drawings/ --format both --csv results.csv
+
+# Repair before checking (runs AUDIT)
+civil-qc check drawing.dwg --repair
 
 # Custom rules, both output formats
 civil-qc check drawing.dwg --rules custom-rules.yaml --format both --verbose
@@ -76,6 +85,9 @@ civil-qc CLI  ──spawns──>  accoreconsole.exe  ──loads──>  CivilQ
 | `ANNO-002` | Text Styles | Warning | Validates text styles against naming standards |
 | `BLOCK-001` | Block Naming | Warning | Checks block names against prefix/suffix rules |
 | `BLOCK-002` | Dynamic Blocks | Info | Reports dynamic blocks and their properties |
+| `BLOCK-003` | Block Insertion Point | Warning | Detects blocks inserted at non-zero insertion points |
+| `LAYER-004` | Layer Color | Warning | Validates layer colors against allowed values |
+| `LAYER-005` | Layer Linetype | Warning | Validates layer linetypes against allowed values |
 | `DWG-001` | Drawing Recovery | Critical | Detects recovery mode and audit status |
 
 ## Custom Rules
@@ -156,6 +168,11 @@ Rules are auto-discovered via reflection. No registration needed.
 | `DRAW-002` | `fail_on_missing` | bool | `true` | Mark as failed when xrefs are missing |
 | `DRAW-002` | `warn_on_overlay` | bool | `false` | Flag overlay-type xrefs |
 | `DRAW-003` | `max_count` | int | 0 | Max proxy objects allowed; 0 = report only |
+| `LAYER-004` | `allowed_colors` | list | `[]` | Allowed ACI color indices; empty = all allowed |
+| `LAYER-004` | `forbid_bylayer_zero` | bool | `false` | Flag layers using color 0 (ByBlock) |
+| `LAYER-005` | `allowed_linetypes` | list | `["Continuous","ByLayer","ByBlock"]` | Allowed linetype names |
+| `BLOCK-003` | `origin_threshold` | float | 0.001 | Max distance from origin to flag |
+| `BLOCK-003` | `skip_xrefs` | bool | `true` | Skip blocks from external references |
 
 ## Requirements
 
@@ -167,8 +184,8 @@ Rules are auto-discovered via reflection. No registration needed.
 
 See [ROADMAP.md](ROADMAP.md) for the full version timeline.
 
-**Current**: v0.2.0 (12 rules, AI features, multi-version builds)
-**Next**: v0.3.0 (.NET 4.8 compat, AI fix suggestions, CSV export)
+**Current**: v0.3.0 (15 rules, batch mode, CSV export, AUDIT pre-step)
+**Next**: v0.4.0 (more rules, plugin architecture)
 
 ## Contributing
 
