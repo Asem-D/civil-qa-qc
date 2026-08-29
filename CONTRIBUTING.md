@@ -67,6 +67,8 @@ dotnet test
 These are checks that users have requested or that would add significant value. Pick one and claim it by opening an issue:
 
 ### High Priority
+- **AECC-001: Object Style compliance** — Validate that Civil 3D AECC object styles (surfaces, alignments, profiles, corridors) match project standards via `CivilApplication.ActiveDocument.Styles`
+- **AECC-002: Label Style compliance** — Check that Civil 3D label styles follow naming conventions and use approved components
 - **LAYER-004: Layer color standards** — Validate that layers use approved color indices (e.g., standard ACI palette)
 - **LAYER-005: Layer linetype standards** — Check that layers use approved linetypes (Continuous, Dashed, Center, etc.)
 - **ANNO-003: Dimension style consistency** — Validate dimension styles against project standards
@@ -74,6 +76,7 @@ These are checks that users have requested or that would add significant value. 
 - **DRAW-004: Sheet index** — Compare layout tabs against expected sheet list from a standards file
 
 ### Medium Priority
+- **TREF-001: Reference Template sync** — Detect when TREF-controlled styles have been overridden or the drawing is out of sync with its reference templates
 - **TEXT-001: MText formatting** — Detect inconsistent text formatting (mixed fonts, heights within a drawing)
 - **PIPE-001: Pipe network connectivity** — Check for disconnected pipe network segments
 - **SURF-001: Surface complexity** — Report triangle count and flag surfaces that may be too dense for performance
@@ -86,6 +89,15 @@ These are checks that users have requested or that would add significant value. 
 - **DWG-002: Drawing statistics** — Comprehensive summary: entity counts, layer usage, block usage, xref tree
 
 Have an idea not listed here? Open an issue and describe the check you need!
+
+## Tool Improvements
+
+Non-rule improvements to the CLI and execution engine. Open an issue to claim one:
+
+- **Parallel batch processing** — `--parallel N` flag to run N accoreconsole instances concurrently, with configurable memory limits
+- **AUDIT pre-step** — `--repair` flag to run AUDIT with fix mode before checks, for batch workflows dealing with drawings that may have internal errors
+- **Profile support** — `--profile` flag to specify which AutoCAD profile accoreconsole loads, for environments with custom Object Enablers or third-party assemblies
+- **RECOVER fallback** — Automatically retry with RECOVER mode when exit code 53 is detected, instead of just reporting the error
 
 ## License
 
