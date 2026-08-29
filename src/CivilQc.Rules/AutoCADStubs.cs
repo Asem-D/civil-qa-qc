@@ -23,6 +23,8 @@ namespace Autodesk.AutoCAD.DatabaseServices
     public struct ObjectId
     {
         public static readonly ObjectId Null = default;
+        public static bool operator ==(ObjectId a, ObjectId b) => a.Equals(b);
+        public static bool operator !=(ObjectId a, ObjectId b) => !a.Equals(b);
     }
 
     public class ResultBuffer : System.IDisposable
