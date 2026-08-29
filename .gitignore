@@ -38,6 +38,9 @@ bld/
 [Bb]uild[Ll]og.*
 TestResult.xml
 
+## Agent workspace
+.nanobot/
+
 ## OS
 Thumbs.db
 ehthumbs.db
