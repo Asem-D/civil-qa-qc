@@ -92,7 +92,25 @@ namespace Autodesk.AutoCAD.DatabaseServices
 
     public class ProxyEntity : Entity { }
 
+    public class Point3d
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Z { get; set; }
+    }
+
+    public class BlockReference : Entity
+    {
+        public Point3d Position { get; set; } = new Point3d();
+        public ObjectId BlockTableRecord { get; set; }
+    }
+
     public class LayerTable : SymbolTable { }
+
+    public class Color
+    {
+        public short ColorIndex { get; set; } = 7;
+    }
 
     public class LayerTableRecord : DBObject
     {
@@ -101,6 +119,15 @@ namespace Autodesk.AutoCAD.DatabaseServices
         public bool IsOff { get; set; }
         public bool IsLocked { get; set; }
         public bool IsPlottable { get; set; }
+        public Color Color { get; set; } = new Color();
+        public ObjectId LinetypeObjectId { get; set; }
+    }
+
+    public class LinetypeTable : SymbolTable { }
+
+    public class LinetypeTableRecord : DBObject
+    {
+        public string Name { get; set; } = string.Empty;
     }
 
     public class TextStyleTable : SymbolTable { }

@@ -88,6 +88,42 @@ rules:
     parameters:
       exclude_defaults: true
 
+  # LAYER-004: Layer color standards
+  # Validates that layers use approved ACI color indices.
+  - id: LAYER-004
+    name: Layer color standards
+    check_type: LayerColor
+    severity: Warning
+    description: >-
+      Checks that all user-created layers use colors from an approved list.
+      Non-standard colors indicate copy/paste from other projects.
+    parameters:
+      allowed_colors:
+        - 1       # Red
+        - 2       # Yellow
+        - 3       # Green
+        - 4       # Cyan
+        - 5       # Blue
+        - 6       # Magenta
+        - 7       # White/Black
+        - 256     # ByLayer
+      forbid_bylayer_zero: false
+
+  # LAYER-005: Layer linetype standards
+  # Validates that layers use approved linetypes.
+  - id: LAYER-005
+    name: Layer linetype standards
+    check_type: LayerLinetype
+    severity: Warning
+    description: >-
+      Checks that all user-created layers use linetypes from an approved list.
+      Non-standard linetypes indicate copy/paste from other projects.
+    parameters:
+      allowed_linetypes:
+        - Continuous
+        - ByLayer
+        - ByBlock
+
   # ─── Drawing Checks ────────────────────────────────────────────────────────
 
   # DRAW-001: Drawing units
@@ -194,6 +230,19 @@ rules:
       dynamic behaviour, usually from copy/paste across drawings.
     parameters:
       fail_on_broken: true
+
+  # BLOCK-003: Block insertion point
+  # Detects blocks inserted at origin (0,0,0).
+  - id: BLOCK-003
+    name: Block insertion point
+    check_type: BlockInsertion
+    severity: Warning
+    description: >-
+      Detects BlockReference entities inserted at or near the origin.
+      Origin insertions are usually copy/paste errors.
+    parameters:
+      origin_threshold: 0.001
+      skip_xrefs: true
 
   # ─── Drawing Health Checks ───────────────────────────────────────────────
 

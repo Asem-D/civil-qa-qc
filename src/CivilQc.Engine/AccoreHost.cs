@@ -37,8 +37,9 @@ public class AccoreHost
     /// Run accoreconsole with a script that loads the plugin and executes checks.
     /// pluginArgsPath is the temp JSON file written by WriteArgsFile().
     /// When recover is true, uses RECOVER command to auto-repair corrupt drawings.
+    /// When repair is true, uses AUDIT command to fix errors before checks.
     /// </summary>
-    public (int exitCode, string output, string error) Run(string drawingPath, string pluginArgsPath, bool recover = false)
+    public (int exitCode, string output, string error) Run(string drawingPath, string pluginArgsPath, bool recover = false, bool repair = false)
     {
         if (!File.Exists(_accoreconsolePath))
             throw new FileNotFoundException($"accoreconsole.exe not found at: {_accoreconsolePath}");
@@ -62,6 +63,14 @@ public class AccoreHost
             // When the drawing is clean, RECOVER behaves like a normal open.
             script.AppendLine("RECOVER");
             script.AppendLine($"\"{drawingPath}\"");
+        }
+
+        if (repair && !recover)
+        {
+            // Use AUDIT to fix errors in the currently open drawing.
+            // AUDIT is lighter than RECOVER (does not reopen the file).
+            script.AppendLine("AUDIT");
+            script.AppendLine("Y"); // Answer "Yes" to fix errors
         }
 
         script.AppendLine($"NETLOAD \"{pluginDll}\"");

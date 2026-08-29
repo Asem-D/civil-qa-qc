@@ -135,4 +135,51 @@ public class ReportGeneratorTests
                 File.Delete(outputPath);
         }
     }
+
+    [Fact]
+    public void GenerateCsv_CreatesFile()
+    {
+        var report = new ReportData
+        {
+            DrawingPath = @"C:\test\sample.dwg",
+            ToolVersion = "0.1.0",
+            Results = new List<CheckResult>
+            {
+                new()
+                {
+                    RuleId = "TEST-001",
+                    RuleName = "Test Rule",
+                    Severity = Severity.Warning,
+                    Passed = false,
+                    Message = "Test issue"
+                },
+                new()
+                {
+                    RuleId = "TEST-002",
+                    RuleName = "Passing Rule",
+                    Severity = Severity.Info,
+                    Passed = true,
+                    Message = "All good"
+                }
+            }
+        };
+
+        var outputPath = Path.Combine(Path.GetTempPath(), $"civil_qc_test_{Guid.NewGuid():N}.csv");
+        try
+        {
+            ReportGenerator.GenerateCsv(report, outputPath);
+            Assert.True(File.Exists(outputPath));
+
+            var content = File.ReadAllText(outputPath);
+            Assert.Contains("Status,RuleId,RuleName,Severity,Message", content);
+            Assert.Contains("FAIL", content);
+            Assert.Contains("PASS", content);
+            Assert.Contains("Test Rule", content);
+        }
+        finally
+        {
+            if (File.Exists(outputPath))
+                File.Delete(outputPath);
+        }
+    }
 }

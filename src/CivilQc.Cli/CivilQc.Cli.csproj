@@ -8,7 +8,7 @@
     <RootNamespace>CivilQc.Cli</RootNamespace>
     <LangVersion>12</LangVersion>
     <AssemblyName>civil-qc</AssemblyName>
-    <Version>0.1.0</Version>
+    <Version>0.3.0</Version>
     <Description>Open-source QA/QC tool for Civil 3D drawings</Description>
   </PropertyGroup>
 

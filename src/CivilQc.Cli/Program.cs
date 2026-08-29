@@ -10,10 +10,11 @@ var rootCommand = new RootCommand("Civil QC - Open-source QA/QC tool for Civil 3
 var checkFileArg = new Argument<FileInfo>("drawing", "Path to the DWG file to check");
 var rulesOption = new Option<FileInfo?>("--rules", "Path to YAML rules config file");
 var outputOption = new Option<FileInfo?>("--output", "Path for output report file");
-var formatOption = new Option<string>("--format", () => "html", "Report format: html, json, or both");
+var formatOption = new Option<string>("--format", () => "html", "Report format: html, json, csv, or both");
 var screenshotOption = new Option<DirectoryInfo?>("--screenshots", "Directory for screenshot output");
 var verboseOption = new Option<bool>("--verbose", "Show detailed output during checks");
 var recoverOption = new Option<bool>("--recover", "Force RECOVER mode for corrupt drawings");
+var repairOption = new Option<bool>("--repair", "Run AUDIT before checks to fix drawing errors");
 var aiFixOption = new Option<bool>("--ai-fix", "Get AI-powered fix suggestions for failures (requires API key)");
 var aiApiKeyOption = new Option<string?>("--api-key", "AI API key (or set CIVIL_QC_AI_KEY env var)");
 var aiApiBaseOption = new Option<string?>("--api-base", "AI API base URL (default: https://openrouter.ai/api/v1)");
@@ -21,11 +22,11 @@ var aiModelOption = new Option<string?>("--model", "AI model name (default: anth
 
 var checkCommand = new Command("check", "Run QA/QC checks on a Civil 3D drawing")
 {
-    checkFileArg, rulesOption, outputOption, formatOption, screenshotOption, verboseOption, recoverOption, aiFixOption,
+    checkFileArg, rulesOption, outputOption, formatOption, screenshotOption, verboseOption, recoverOption, repairOption,
     aiApiKeyOption, aiApiBaseOption, aiModelOption
 };
 
-checkCommand.SetHandler(async (drawing, rules, output, format, screenshots, verbose, recover, aiFix) =>
+checkCommand.SetHandler(async (drawing, rules, output, format, screenshots, verbose, recover, repair) =>
 {
     if (!drawing.Exists)
     {
@@ -33,7 +34,7 @@ checkCommand.SetHandler(async (drawing, rules, output, format, screenshots, verb
         return;
     }
 
-    Console.WriteLine($"Civil QC v0.1.0");
+    Console.WriteLine($"Civil QC v0.3.0");
     Console.WriteLine($"Drawing: {drawing.FullName}");
     Console.WriteLine();
 
@@ -71,7 +72,7 @@ checkCommand.SetHandler(async (drawing, rules, output, format, screenshots, verb
 
     try
     {
-        var (exitCode, stdout, stderr) = host.Run(drawing.FullName, argsPath, recover);
+        var (exitCode, stdout, stderr) = host.Run(drawing.FullName, argsPath, recover, repair);
 
         // Auto-retry with RECOVER if the drawing appears corrupt (and not already in recover mode).
         if (!recover && AccoreHost.IsCorruptDrawingError(exitCode, stdout, stderr))
@@ -110,40 +111,6 @@ checkCommand.SetHandler(async (drawing, rules, output, format, screenshots, verb
         // Clean up temp plugin output file
         try { File.Delete(pluginOutputPath); } catch { /* best effort */ }
 
-        // AI fix suggestions (optional)
-        if (aiFix)
-        {
-            var aiConfig = AiConfig.Load(
-                null, // apiKey from handler closure
-                null,
-                null);
-            if (aiConfig.IsConfigured)
-            {
-                var failedResults = reportData.Results.Where(r => !r.Passed).ToList();
-                if (failedResults.Count > 0)
-                {
-                    Console.WriteLine();
-                    Console.WriteLine("Generating AI fix suggestions...");
-                    var aiClient = new OpenAiClient(aiConfig);
-                    var fixService = new FixSuggestionService(aiClient);
-                    var suggestions = await fixService.GenerateFixSuggestionsAsync(failedResults);
-
-                    // Attach suggestions to results
-                    foreach (var result in reportData.Results)
-                    {
-                        if (suggestions.TryGetValue(result.RuleId, out var fix))
-                            result.SuggestedFix = fix;
-                    }
-
-                    Console.WriteLine($"  Generated {suggestions.Count} fix suggestion(s)");
-                }
-            }
-            else
-            {
-                Console.WriteLine("  AI fix suggestions skipped (no API key configured)");
-            }
-        }
-
         if (format is "html" or "both")
         {
             var htmlPath = reportBase + ".html";
@@ -158,6 +125,13 @@ checkCommand.SetHandler(async (drawing, rules, output, format, screenshots, verb
             Console.WriteLine($"JSON report: {jsonPath}");
         }
 
+        if (format is "csv" or "both")
+        {
+            var csvPath = reportBase + ".csv";
+            ReportGenerator.GenerateCsv(reportData, csvPath);
+            Console.WriteLine($"CSV report: {csvPath}");
+        }
+
         // Print summary
         Console.WriteLine();
         Console.WriteLine($"Results: {reportData.Passed} passed, {reportData.Failed} failed ({reportData.CriticalCount} critical, {reportData.ErrorCount} errors, {reportData.WarningCount} warnings)");
@@ -170,9 +144,125 @@ checkCommand.SetHandler(async (drawing, rules, output, format, screenshots, verb
     {
         Console.Error.WriteLine($"Error: {ex.Message}");
     }
-}, checkFileArg, rulesOption, outputOption, formatOption, screenshotOption, verboseOption, recoverOption, aiFixOption);
+}, checkFileArg, rulesOption, outputOption, formatOption, screenshotOption, verboseOption, recoverOption, repairOption);
 
 rootCommand.AddCommand(checkCommand);
+
+// --- batch command ---
+var batchDirArg = new Argument<DirectoryInfo>("directory", "Directory containing DWG files to check");
+var batchRecursiveOption = new Option<bool>("--recursive", "Search subdirectories for DWG files");
+
+var batchCommand = new Command("batch", "Run QA/QC checks on all DWG files in a directory")
+{
+    batchDirArg, rulesOption, outputOption, formatOption, screenshotOption,
+    verboseOption, recoverOption, batchRecursiveOption,
+    aiApiKeyOption, aiApiBaseOption, aiModelOption
+};
+
+batchCommand.SetHandler(async (directory, rules, output, format, screenshots, verbose, recover, recursive) =>
+{
+    if (!directory.Exists)
+    {
+        Console.Error.WriteLine($"Error: Directory not found: {directory.FullName}");
+        return;
+    }
+
+    Console.WriteLine("Civil QC v0.3.0 — Batch Mode");
+    Console.WriteLine($"Directory: {directory.FullName}");
+    Console.WriteLine();
+
+    // Load rules once for all drawings
+    var ruleConfig = rules != null && rules.Exists
+        ? RuleLoader.LoadFromFile(rules.FullName)
+        : RuleLoader.LoadDefault();
+
+    var enabledCount = ruleConfig.Rules.Count(r => r.Enabled);
+    Console.WriteLine($"Loaded {ruleConfig.Rules.Count} rules ({enabledCount} enabled)");
+
+    // Discover DWG files
+    var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+    var dwgFiles = directory.GetFiles("*.dwg", searchOption)
+        .OrderBy(f => f.FullName)
+        .ToList();
+
+    if (dwgFiles.Count == 0)
+    {
+        Console.WriteLine("No DWG files found.");
+        return;
+    }
+
+    Console.WriteLine($"Found {dwgFiles.Count} DWG file(s)");
+    Console.WriteLine();
+
+    // Shared output directory
+    var reportDir = output?.FullName != null
+        ? Path.GetDirectoryName(output.FullName) ?? "."
+        : directory.FullName;
+    var batchReportDir = Path.Combine(reportDir, $"civil-qc-batch-{DateTime.Now:yyyyMMdd-HHmmss}");
+    Directory.CreateDirectory(batchReportDir);
+
+    var host = new AccoreHost();
+    var batchResults = new List<(string DrawingPath, ReportData Report, bool Success)>();
+    int current = 0;
+
+    foreach (var dwg in dwgFiles)
+    {
+        current++;
+        Console.WriteLine($"[{current}/{dwgFiles.Count}] {dwg.Name}");
+
+        try
+        {
+            var drawingResult = await RunSingleCheck(
+                dwg, ruleConfig, format, screenshots, verbose, recover, false, host, batchReportDir);
+            batchResults.Add((dwg.FullName, drawingResult, true));
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"  Error: {ex.Message}");
+            batchResults.Add((dwg.FullName, new ReportData { DrawingPath = dwg.FullName, ToolVersion = "0.3.0", Results = new() }, false));
+        }
+
+        Console.WriteLine();
+    }
+
+    // Generate batch summary
+    var summaryPath = Path.Combine(batchReportDir, "batch-summary");
+    var batchData = new BatchReportData
+    {
+        DirectoryPath = directory.FullName,
+        ToolVersion = "0.3.0",
+        Results = batchResults.Select(r => new BatchDrawingResult
+        {
+            DrawingPath = r.DrawingPath,
+            Passed = r.Report.Passed,
+            Failed = r.Report.Failed,
+            CriticalCount = r.Report.CriticalCount,
+            ErrorCount = r.Report.ErrorCount,
+            WarningCount = r.Report.WarningCount,
+            Success = r.Success
+        }).ToList()
+    };
+
+    if (format is "html" or "both" or "csv")
+    {
+        ReportGenerator.GenerateBatchHtml(batchData, summaryPath + ".html");
+        Console.WriteLine($"Batch summary: {summaryPath}.html");
+    }
+    if (format is "json" or "both")
+    {
+        ReportGenerator.GenerateBatchJson(batchData, summaryPath + ".json");
+        Console.WriteLine($"Batch summary: {summaryPath}.json");
+    }
+
+    // Final summary
+    var totalPassed = batchResults.Count(r => r.Report.Failed == 0 && r.Success);
+    var totalFailed = batchResults.Count(r => r.Report.Failed > 0 && r.Success);
+    var totalErrors = batchResults.Count(r => !r.Success);
+    Console.WriteLine($"Batch complete: {totalPassed} passed, {totalFailed} failed, {totalErrors} errors ({batchResults.Count} drawings)");
+}, batchDirArg, rulesOption, outputOption, formatOption, screenshotOption,
+   verboseOption, recoverOption, batchRecursiveOption);
+
+rootCommand.AddCommand(batchCommand);
 
 // --- ai command group ---
 var aiCommand = new Command("ai", "AI-powered features (optional, requires BYOK)")
@@ -331,3 +421,76 @@ static string StripMarkdownFences(string text)
 }
 
 return await rootCommand.InvokeAsync(args);
+
+// ── Shared check logic ───────────────────────────────────────────────────
+static async Task<ReportData> RunSingleCheck(
+    FileInfo drawing,
+    RuleConfig ruleConfig,
+    string format,
+    DirectoryInfo? screenshots,
+    bool verbose,
+    bool recover,
+    bool aiFix,
+    AccoreHost host,
+    string reportDir)
+{
+    var drawingName = Path.GetFileNameWithoutExtension(drawing.FullName);
+    var reportBase = Path.Combine(reportDir, drawingName + ".civil-qc");
+    var screenshotDir = screenshots?.FullName ?? Path.Combine(reportDir, "screenshots");
+    Directory.CreateDirectory(screenshotDir);
+
+    var pluginOutputPath = Path.Combine(Path.GetTempPath(), $"civil_qc_output_{Guid.NewGuid():N}.json");
+    var argsPath = RuleEngine.WritePluginArguments(ruleConfig, drawing.FullName, pluginOutputPath, screenshotDir);
+
+    var (exitCode, stdout, stderr) = host.Run(drawing.FullName, argsPath, recover);
+
+    // Auto-retry with RECOVER if corrupt
+    if (!recover && AccoreHost.IsCorruptDrawingError(exitCode, stdout, stderr))
+    {
+        Console.WriteLine("  Retrying with RECOVER...");
+        var retry = host.Run(drawing.FullName, argsPath, recover: true);
+        exitCode = retry.exitCode;
+        stdout = retry.output;
+        stderr = retry.error;
+    }
+
+    if (verbose && !string.IsNullOrEmpty(stderr))
+        Console.Error.WriteLine($"  stderr: {stderr}");
+
+    var reportData = RuleEngine.ParseResults(drawing.FullName, pluginOutputPath);
+    try { File.Delete(pluginOutputPath); } catch { }
+
+    // AI fix suggestions
+    if (aiFix)
+    {
+        var aiConfig = AiConfig.Load(null, null, null);
+        if (aiConfig.IsConfigured)
+        {
+            var failedResults = reportData.Results.Where(r => !r.Passed).ToList();
+            if (failedResults.Count > 0)
+            {
+                var aiClient = new OpenAiClient(aiConfig);
+                var fixService = new FixSuggestionService(aiClient);
+                var suggestions = await fixService.GenerateFixSuggestionsAsync(failedResults);
+                foreach (var result in reportData.Results)
+                {
+                    if (suggestions.TryGetValue(result.RuleId, out var fix))
+                        result.SuggestedFix = fix;
+                }
+            }
+        }
+    }
+
+    // Generate reports
+    if (format is "html" or "both")
+        ReportGenerator.GenerateHtml(reportData, reportBase + ".html");
+    if (format is "json" or "both")
+        ReportGenerator.GenerateJson(reportData, reportBase + ".json");
+    if (format is "csv" or "both")
+        ReportGenerator.GenerateCsv(reportData, reportBase + ".csv");
+
+    var status = reportData.Failed == 0 ? "PASS" : $"FAIL ({reportData.Failed} issues)";
+    Console.WriteLine($"  {status}");
+
+    return reportData;
+}

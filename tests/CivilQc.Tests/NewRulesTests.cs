@@ -10,10 +10,31 @@ namespace CivilQc.Tests;
 public class NewRulesDiscoveryTests
 {
     [Fact]
-    public void LoadDefault_ContainsAll12Rules()
+    public void LoadDefault_ContainsAll15Rules()
     {
         var config = RuleLoader.LoadDefault();
-        Assert.Equal(12, config.Rules.Count);
+        Assert.Equal(15, config.Rules.Count);
+    }
+
+    [Fact]
+    public void LoadDefault_ContainsLayer004()
+    {
+        var config = RuleLoader.LoadDefault();
+        Assert.Contains(config.Rules, r => r.Id == "LAYER-004");
+    }
+
+    [Fact]
+    public void LoadDefault_ContainsLayer005()
+    {
+        var config = RuleLoader.LoadDefault();
+        Assert.Contains(config.Rules, r => r.Id == "LAYER-005");
+    }
+
+    [Fact]
+    public void LoadDefault_ContainsBlock003()
+    {
+        var config = RuleLoader.LoadDefault();
+        Assert.Contains(config.Rules, r => r.Id == "BLOCK-003");
     }
 
     [Fact]
@@ -123,7 +144,7 @@ public class NewRulesContractTests
     [Fact]
     public void AllRuleImplementations_ImplementIRule()
     {
-        Assert.True(RuleTypes.Length >= 12,
-            $"Expected at least 12 rule implementations, found {RuleTypes.Length}");
+        Assert.True(RuleTypes.Length >= 15,
+            $"Expected at least 15 rule implementations, found {RuleTypes.Length}");
     }
 }
