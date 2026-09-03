@@ -3,7 +3,7 @@
 [![Build](https://github.com/Asem-D/civil-qa-qc/actions/workflows/ci.yml/badge.svg)](https://github.com/Asem-D/civil-qa-qc/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-purple)](https://dotnet.microsoft.com/download)
-[![.NET 4.8](https://img.shields.io/badge/.NET-Framework-4.8-purple)](https://dotnet.microsoft.com/download/dotnet-framework)
+[![.NET Framework 4.8](https://img.shields.io/badge/.NET%20Framework-4.8-purple)](https://dotnet.microsoft.com/download/dotnet-framework)
 [![Civil 3D](https://img.shields.io/badge/Civil%203D-2020--2025-orange)](https://www.autodesk.com/products/civil-3d)
 
 Open-source CLI tool for automated QA/QC of Civil 3D drawings. Runs configurable checks against your `.dwg` files and generates HTML/JSON reports.
